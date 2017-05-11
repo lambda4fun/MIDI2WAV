@@ -1,6 +1,6 @@
 ﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    Title="MIDI to WAV Converter" Width="480" Height="240">
+    Title="MIDI File Editor" Width="480" Height="240">
 
     <Grid>
     </Grid>
