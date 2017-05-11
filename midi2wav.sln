@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{22D8857B-9B38-47FC-8409-728C5D67B8E3}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "midi-editor", "src\midi-editor\midi-editor.fsproj", "{B90C3948-A99E-47AA-B150-3C7FD6A35C0F}"
