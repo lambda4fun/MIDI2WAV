@@ -1,7 +1,8 @@
-FRAMEWORK: NET40-FULL, NET462
+FRAMEWORK: NET462
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (4.1.17)
       System.ValueTuple (>= 4.3)
     FsXaml.Wpf (3.1.6)
+    NAudio (1.8)
     System.ValueTuple (4.3)

@@ -4,3 +4,4 @@ source https://api.nuget.org/v3/index.json
 nuget FSharp.Core
 nuget FsXaml.Wpf
 nuget System.ValueTuple 4.3.0
+nuget NAudio

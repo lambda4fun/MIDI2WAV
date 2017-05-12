@@ -1,7 +1,22 @@
 ﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    Title="MIDI File Editor" Width="480" Height="240">
+    Title="MIDI File Editor" Width="640" Height="480">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Menu>
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..." Command="{Binding OpenCommand}" />
+                <Separator />
+                <MenuItem Header="E_xit" Command="{Binding ExitCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About..." Command="{Binding AboutCommand}" />
+            </MenuItem>
+        </Menu>
     </Grid>
 </Window>
