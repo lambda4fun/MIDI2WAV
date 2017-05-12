@@ -59,6 +59,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <None Include="App.config" />
     <Resource Include="App.xaml" />
+    <Compile Include="CommandUtils.fs" />
     <Compile Include="MainViewModel.fs" />
     <Resource Include="MainWindow.xaml" />
     <Compile Include="MainWindow.xaml.fs" />
