@@ -18,5 +18,15 @@
                 <MenuItem Header="_About..." Command="{Binding AboutCommand}" />
             </MenuItem>
         </Menu>
+
+        <DataGrid Name="EventsGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="#" Binding="{Binding Index}" IsReadOnly="True" />
+                <DataGridTextColumn Header="t" Binding="{Binding AbsoluteTime}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Δt" Binding="{Binding DeltaTime}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Command" Binding="{Binding CommandCode}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Channel" Binding="{Binding Channel}" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
