@@ -1,7 +1,43 @@
 ﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    Title="MIDI to WAV Converter" Width="480" Height="240">
+    Title="MIDI to WAV Converter" Width="540"
+    ResizeMode="NoResize" SizeToContent="Height">
 
-    <Grid>
-    </Grid>
+    <StackPanel Margin="12px">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0"
+                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                   Content="Input file:"/>
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Margin="8px" />
+            <Button Grid.Row="0" Grid.Column="2"
+                    Margin="0, 8px"  Padding="12px, 4px"
+                    Content="Browse..."/>
+
+            <Label Grid.Row="1" Grid.Column="0"
+                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                   Content="Output file:"/>
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Margin="8px" />
+            <Button Grid.Row="1" Grid.Column="2"
+                    Margin="0, 8px"  Padding="12px, 4px"
+                    Content="Browse..."/>
+
+            <Button Grid.Row="2" Grid.Column="2"
+                    Margin="0, 8px"  Padding="12px, 4px"
+                    Content="Convert" />
+        </Grid>
+    </StackPanel>
 </Window>
