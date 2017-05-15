@@ -6,6 +6,7 @@ open Microsoft.Win32
 open Microsoft.FSharp.Linq.NullableOperators
 open NAudio.Midi
 open CommandUtils
+open Views
 
 type EventRow = {
     Index : int
@@ -15,14 +16,14 @@ type EventRow = {
     CommandCode : MidiCommandCode
 }
 
-type MainViewModel(window : Window) =
+type MainViewModel(window : MainWindow) =
     let loadMidiFile path =
         let midiFile = NAudio.Midi.MidiFile(path)
         let track = 0
         let events = midiFile.Events.[track]
         let rows = events |> Seq.mapi (fun i e ->
             { Index=i; AbsoluteTime=e.AbsoluteTime; DeltaTime=e.DeltaTime; Channel=e.Channel; CommandCode=e.CommandCode })
-        window.DataContext <- rows
+        window.EventsGrid.DataContext <- rows
 
     do
         window.MouseLeftButtonDown.AddHandler(fun _ _ ->
