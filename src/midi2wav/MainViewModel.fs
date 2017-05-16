@@ -1,5 +1,6 @@
 ﻿namespace ViewModels
 
+open System.Windows.Forms
 open Microsoft.Win32
 open Microsoft.FSharp.Linq.NullableOperators
 open CommandUtils
@@ -20,13 +21,24 @@ type MainViewModel(window : MainWindow) as self =
     inherit ViewModelBase()
 
     let mutable inputFilePath = ""
+    let mutable outputDirectory = ""
 
     member __.InputFilePath with get() = inputFilePath
                             and  set v = inputFilePath <- v
                                          self.NotifyPropertyChanged("InputFilePath")
 
+    member __.OutputDirectory with get() = outputDirectory
+                              and  set v = outputDirectory <- v
+                                           self.NotifyPropertyChanged("OutputDirectory")
+    
     member __.BrowseInputFileCommand = functionCommand(fun () ->
         let dialog = OpenFileDialog()
         let result = dialog.ShowDialog(window)
         if result ?= true then
             self.InputFilePath <- dialog.FileName)
+    
+    member __.BrowseOutputDirectoryCommand = functionCommand(fun () ->
+        use dialog = new FolderBrowserDialog()
+        let result = dialog.ShowDialog()
+        if result = DialogResult.OK then
+            self.OutputDirectory <- dialog.SelectedPath)
