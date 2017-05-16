@@ -21,10 +21,13 @@
                    HorizontalAlignment="Right" VerticalAlignment="Center"
                    Content="Input file:"/>
             <TextBox Grid.Row="0" Grid.Column="1"
-                     Margin="8px" />
+                     Margin="8px"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding InputFilePath}" />
             <Button Grid.Row="0" Grid.Column="2"
                     Margin="0, 8px"  Padding="12px, 4px"
-                    Content="Browse..."/>
+                    Content="Browse..."
+                    Command="{Binding BrowseInputFileCommand}" />
 
             <Label Grid.Row="1" Grid.Column="0"
                    HorizontalAlignment="Right" VerticalAlignment="Center"
