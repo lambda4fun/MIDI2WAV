@@ -42,8 +42,9 @@
                     Command="{Binding BrowseOutputDirectoryCommand}"/>
 
             <Button Grid.Row="2" Grid.Column="2"
-                    Margin="0, 8px"  Padding="12px, 4px"
-                    Content="Convert" />
+                    Margin="0,7,0,9"  Padding="12px, 4px"
+                    Content="Convert"
+                    Command="{Binding ConvertCommand}" />
         </Grid>
     </StackPanel>
 </Window>
