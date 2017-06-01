@@ -58,6 +58,7 @@
     <Content Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="CommandUtils.fs" />
+    <Compile Include="Convert.fs" />
     <None Include="App.config" />
     <Resource Include="App.xaml" />
     <Resource Include="MainWindow.xaml" />
@@ -119,6 +120,17 @@
         </Reference>
         <Reference Include="FsXaml.Wpf.TypeProvider">
           <HintPath>..\..\packages\FsXaml.Wpf\lib\net45\FsXaml.Wpf.TypeProvider.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.2'">
+      <ItemGroup>
+        <Reference Include="NAudio">
+          <HintPath>..\..\packages\NAudio\lib\net35\NAudio.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
