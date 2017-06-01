@@ -1,15 +1,11 @@
 ﻿namespace ViewModels
 
-open System
+open System.ComponentModel
 open System.Windows.Forms
 open Microsoft.Win32
 open Microsoft.FSharp.Linq.NullableOperators
-open NAudio.Midi
-open NAudio.SoundFont
-open NAudio.Wave
 open CommandUtils
 open Views
-open System.ComponentModel
 
 type ViewModelBase() =
     let propertyChangedEvent = Event<_, _>()
