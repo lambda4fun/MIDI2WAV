@@ -55,5 +55,4 @@ type MainViewModel(window : MainWindow) as self =
             let outputFilePath = Path.Combine(outputDirectory, outputFileName)
             convertMidiToWave inputFilePath outputFilePath
         with err ->
-            MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
-        ())
+            MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore)
