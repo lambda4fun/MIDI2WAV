@@ -1,10 +1,12 @@
 ﻿namespace ViewModels
 
+open System.IO
 open System.ComponentModel
 open System.Windows.Forms
 open Microsoft.Win32
 open Microsoft.FSharp.Linq.NullableOperators
 open CommandUtils
+open Convert
 open Views
 
 type ViewModelBase() =
@@ -42,4 +44,16 @@ type MainViewModel(window : MainWindow) as self =
         if result = DialogResult.OK then
             self.OutputDirectory <- dialog.SelectedPath)
     
-    member __.ConvertCommand = functionCommand(fun () -> ())
+    member __.ConvertCommand = functionCommand(fun () ->
+        try
+            if not (File.Exists(inputFilePath))
+            then failwith "Input file is not found."
+            if not (Directory.Exists(outputDirectory))
+            then failwith "Output directory is not found."
+
+            let outputFileName = Path.ChangeExtension(Path.GetFileName(inputFilePath), "wav")
+            let outputFilePath = Path.Combine(outputDirectory, outputFileName)
+            convertMidiToWave inputFilePath outputFilePath
+        with err ->
+            MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore
+        ())
