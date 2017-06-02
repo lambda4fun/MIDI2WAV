@@ -1,7 +1,9 @@
 ﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="MIDI to WAV Converter" Width="540"
-    ResizeMode="NoResize" SizeToContent="Height">
+    ResizeMode="NoResize" SizeToContent="Height"
+    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 
     <StackPanel Margin="16,12,16,16">
         <Grid>
@@ -28,7 +30,7 @@
                     Margin="0, 8px"  Padding="12px, 4px"
                     Content="Browse..."
                     Command="{Binding BrowseInputFileCommand}" />
-            
+
             <Label Grid.Row="1" Grid.Column="0"
                    HorizontalAlignment="Right" VerticalAlignment="Center"
                    Content="Output directory:"/>
@@ -49,7 +51,7 @@
                     HorizontalAlignment="Left" VerticalAlignment="Bottom"
                     Content="Options..."
                     Command="{Binding OptionsCommand}" />
-            
+
             <Button Grid.Row="2" Grid.Column="2"
                     Margin="0,16,0,0"  Padding="12px, 4px"
                      VerticalAlignment="Bottom"
