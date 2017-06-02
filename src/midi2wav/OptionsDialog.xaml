@@ -1,9 +1,10 @@
 ﻿<Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Options" Width="480"
-    ResizeMode="NoResize" SizeToContent="Height"
-    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+    Title="Options"
+    Width="480" SizeToContent="Height" ResizeMode="NoResize" 
+    WindowStyle="ThreeDBorderWindow"
+    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
 
     <StackPanel Margin="16,12,16,16">
         <Grid>
