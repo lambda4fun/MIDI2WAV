@@ -1,23 +1,12 @@
 ﻿namespace ViewModels
 
 open System.IO
-open System.ComponentModel
 open System.Windows.Forms
 open Microsoft.Win32
 open Microsoft.FSharp.Linq.NullableOperators
 open CommandUtils
 open Convert
 open Views
-
-type ViewModelBase() =
-    let propertyChangedEvent = Event<_, _>()
-    
-    interface INotifyPropertyChanged with
-        [<CLIEvent>]
-        member this.PropertyChanged = propertyChangedEvent.Publish
-    
-    member this.NotifyPropertyChanged(name : string) =
-        propertyChangedEvent.Trigger(this, PropertyChangedEventArgs(name))
 
 type MainViewModel(window : MainWindow) as self =
     inherit ViewModelBase()
@@ -44,7 +33,10 @@ type MainViewModel(window : MainWindow) as self =
         if result = DialogResult.OK then
             self.OutputDirectory <- dialog.SelectedPath)
     
-    member __.OptionsCommand = functionCommand(fun () -> ())
+    member __.OptionsCommand = functionCommand(fun () ->
+        let dialog = OptionsDialog()
+        dialog.Owner <- window
+        dialog.ShowDialog())
 
     member __.ConvertCommand = functionCommand(fun () ->
         try
