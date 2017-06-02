@@ -1,5 +1,6 @@
 ﻿namespace ViewModels
 
+open System.Configuration
 open System.IO
 open System.Windows.Forms
 open Microsoft.Win32
@@ -10,7 +11,7 @@ open Views
 
 type MainViewModel(window : MainWindow) as self =
     inherit ViewModelBase()
-
+    
     let mutable inputFilePath = ""
     let mutable outputDirectory = ""
     member __.InputFilePath with get() = inputFilePath
@@ -45,9 +46,12 @@ type MainViewModel(window : MainWindow) as self =
             then failwith "Input file is not found."
             if not (Directory.Exists(outputDirectory))
             then failwith "Output directory is not found."
+            
+            let config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None)
+            let soundFontPath = config.AppSettings.Settings.["SoundFontPath"].Value
 
             let outputFileName = Path.ChangeExtension(Path.GetFileName(inputFilePath), "wav")
             let outputFilePath = Path.Combine(outputDirectory, outputFileName)
-            convertMidiToWave inputFilePath outputFilePath
+            convertMidiToWave soundFontPath inputFilePath outputFilePath
         with err ->
             MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore)

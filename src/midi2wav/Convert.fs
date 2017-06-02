@@ -105,14 +105,13 @@ type SoundFontWaveProvider(soundFont : SoundFont, instrument : Instrument) as th
             else sampleIndex <- sampleIndex + 1u)
         sampleCount
 
-let soundFontPath = "FluidR3 GM2-2.SF2"
-let soundFont = SoundFont(soundFontPath)
-let instrumentName = "Yamaha Grand Piano"
-let instrument = soundFont.Instruments
-                 |> Seq.find (fun i -> i.Name = instrumentName)
-let waveProvider = SoundFontWaveProvider(soundFont, instrument)
+let convertMidiToWave (soundFontPath : string) midiPath wavePath =
+    let soundFont = SoundFont(soundFontPath)
+    let instrumentName = "Yamaha Grand Piano"
+    let instrument = soundFont.Instruments
+                     |> Seq.find (fun i -> i.Name = instrumentName)
+    let waveProvider = SoundFontWaveProvider(soundFont, instrument)
 
-let convertMidiToWave midiPath wavePath =
     let midiFile = NAudio.Midi.MidiFile(midiPath)
     let track = 0
     let events = midiFile.Events.[track]
