@@ -1,3 +1,10 @@
+midi2wav
+  The MIT License
+NAudio
+  Microsoft Public License (Ms-PL)
+FsXaml
+  The MIT License
+
 The MIT License (MIT) 
 Copyright (c) 2017 lambda4fun
 
