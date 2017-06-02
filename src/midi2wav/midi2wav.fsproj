@@ -69,6 +69,7 @@
     <Compile Include="MainWindow.xaml.fs" />
     <Compile Include="MainViewModel.fs" />
     <Compile Include="App.fs" />
+    <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
