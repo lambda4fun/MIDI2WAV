@@ -44,6 +44,8 @@ type MainViewModel(window : MainWindow) as self =
         if result = DialogResult.OK then
             self.OutputDirectory <- dialog.SelectedPath)
     
+    member __.OptionsCommand = functionCommand(fun () -> ())
+
     member __.ConvertCommand = functionCommand(fun () ->
         try
             if not (File.Exists(inputFilePath))
