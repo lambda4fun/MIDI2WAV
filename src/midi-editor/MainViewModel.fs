@@ -25,10 +25,6 @@ type MainViewModel(window : MainWindow) =
             { Index=i; AbsoluteTime=e.AbsoluteTime; DeltaTime=e.DeltaTime; Channel=e.Channel; CommandCode=e.CommandCode })
         window.EventsGrid.DataContext <- rows
 
-    do
-        window.MouseLeftButtonDown.AddHandler(fun _ _ ->
-            MessageBox.Show("Greeting from midi-editor!") |> ignore)
-
     member __.OpenCommand = functionCommand(fun () ->
         let dialog = OpenFileDialog(Filter = "MIDI Files|*.mid;*.midi|All Files|*.*")
         let result = dialog.ShowDialog()
