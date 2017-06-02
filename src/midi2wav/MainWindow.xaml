@@ -3,7 +3,7 @@
     Title="MIDI to WAV Converter" Width="540"
     ResizeMode="NoResize" SizeToContent="Height">
 
-    <StackPanel Margin="12px">
+    <StackPanel Margin="16,12,16,16">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -28,7 +28,7 @@
                     Margin="0, 8px"  Padding="12px, 4px"
                     Content="Browse..."
                     Command="{Binding BrowseInputFileCommand}" />
-
+            
             <Label Grid.Row="1" Grid.Column="0"
                    HorizontalAlignment="Right" VerticalAlignment="Center"
                    Content="Output directory:"/>
@@ -41,8 +41,18 @@
                     Content="Browse..."
                     Command="{Binding BrowseOutputDirectoryCommand}"/>
 
+            <Separator Grid.ColumnSpan="3" Grid.Row="2"
+                       Margin="0,6,0,0" VerticalAlignment="Top"/>
+
+            <Button Grid.Row="2" Grid.Column="0"
+                    Width="72" Margin="0,16,0,0"  Padding="12px, 4px"
+                    HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                    Content="Options..."
+                    Command="{Binding OptionsCommand}" />
+            
             <Button Grid.Row="2" Grid.Column="2"
-                    Margin="0,7,0,9"  Padding="12px, 4px"
+                    Margin="0,16,0,0"  Padding="12px, 4px"
+                     VerticalAlignment="Bottom"
                     Content="Convert"
                     Command="{Binding ConvertCommand}" />
         </Grid>
