@@ -35,6 +35,7 @@ type MainViewModel(window : MainWindow) as self =
     
     member __.OptionsCommand = functionCommand(fun () ->
         let dialog = OptionsDialog()
+        dialog.DataContext <- OptionsViewModel(dialog)
         dialog.Owner <- window
         dialog.ShowDialog())
 

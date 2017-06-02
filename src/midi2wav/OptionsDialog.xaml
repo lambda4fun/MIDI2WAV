@@ -3,8 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Options" Width="480"
     ResizeMode="NoResize" SizeToContent="Height"
-    WindowStyle="ThreeDBorderWindow"
-    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
 
     <StackPanel Margin="16,12,16,16">
         <Grid>
