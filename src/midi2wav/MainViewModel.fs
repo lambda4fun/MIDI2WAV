@@ -14,6 +14,39 @@ type MainViewModel(window : MainWindow) as self =
     
     let mutable inputFilePath = ""
     let mutable outputDirectory = ""
+    
+    let (|FileDrop|_|) (e : System.Windows.DragEventArgs) =
+        if e.Data.GetDataPresent(DataFormats.FileDrop)
+        then e.Data.GetData(DataFormats.FileDrop) :?> string array |> Array.tryHead
+        else None
+    
+    let (|FileExists|_|) (path : string) =
+        if File.Exists(path)
+        then Some FileExists
+        else None
+    
+    let (|DirectoryExists|_|) (path : string) =
+        if Directory.Exists(path)
+        then Some DirectoryExists
+        else None
+
+    do
+        window.DragEnter.AddHandler(fun _ e ->
+            match e with
+            | FileDrop _ -> ()
+            | _ -> e.Effects <- System.Windows.DragDropEffects.None)
+
+        window.Drop.AddHandler(fun _ e ->
+            match e with
+            | FileDrop path ->
+                match path with
+                | FileExists ->
+                    self.InputFilePath <- path
+                | DirectoryExists ->
+                    self.OutputDirectory <- path
+                | _ -> ()
+            | _ -> ())
+
     member __.InputFilePath with get() = inputFilePath
                             and  set v = inputFilePath <- v
                                          self.NotifyPropertyChanged("InputFilePath")

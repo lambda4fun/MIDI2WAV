@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="MIDI to WAV Converter" Width="540"
     ResizeMode="NoResize" SizeToContent="Height"
-    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+    Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+    AllowDrop="True">
 
     <StackPanel Margin="16,12,16,16">
         <Grid>
@@ -21,11 +22,13 @@
 
             <Label Grid.Row="0" Grid.Column="0"
                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                   Content="Input file:"/>
-            <TextBox Grid.Row="0" Grid.Column="1"
+                   Content="Input file:" />
+            <TextBox x:Name="InputFilePathTextBox"
+                     Grid.Row="0" Grid.Column="1"
                      Margin="8px"
                      VerticalContentAlignment="Center"
-                     Text="{Binding InputFilePath}" />
+                     Text="{Binding InputFilePath}"
+                     AllowDrop="True" />
             <Button Grid.Row="0" Grid.Column="2"
                     Margin="0, 8px"  Padding="12px, 4px"
                     Content="Browse..."
@@ -33,11 +36,13 @@
 
             <Label Grid.Row="1" Grid.Column="0"
                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                   Content="Output directory:"/>
-            <TextBox Grid.Row="1" Grid.Column="1"
+                   Content="Output directory:" />
+            <TextBox x:Name="OutputDirectoryTextBox"
+                     Grid.Row="1" Grid.Column="1"
                      Margin="8px"
                      VerticalContentAlignment="Center"
-                     Text="{Binding OutputDirectory}" />
+                     Text="{Binding OutputDirectory}"
+                     AllowDrop="True" />
             <Button Grid.Row="1" Grid.Column="2"
                     Margin="0, 8px"  Padding="12px, 4px"
                     Content="Browse..."
@@ -54,7 +59,7 @@
 
             <Button Grid.Row="2" Grid.Column="2"
                     Margin="0,16,0,0"  Padding="12px, 4px"
-                     VerticalAlignment="Bottom"
+                    VerticalAlignment="Bottom"
                     Content="Convert"
                     Command="{Binding ConvertCommand}" />
         </Grid>
