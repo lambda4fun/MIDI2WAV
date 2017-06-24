@@ -68,26 +68,36 @@ let convertMidiToWave (soundFontPath : string) (instrumentName : string) (midiFi
         let generators = zone.Generators
         let sampleId = generators |> Array.find (fun gen -> gen.GeneratorType = GeneratorEnum.SampleID)
         let sampleHeader = sampleId.SampleHeader
-        let mutable startIndex     = int sampleHeader.Start
-        let mutable startLoopIndex = int sampleHeader.StartLoop
-        let mutable endLoopIndex   = int sampleHeader.EndLoop
-        let mutable endIndex       = int sampleHeader.End
-        let mutable rootKey = int sampleHeader.OriginalPitch
+        let mutable startIndex     = int sampleHeader.Start * 1<sample>
+        let mutable startLoopIndex = int sampleHeader.StartLoop * 1<sample>
+        let mutable endLoopIndex   = int sampleHeader.EndLoop * 1<sample>
+        let mutable endIndex       = int sampleHeader.End * 1<sample>
+        let mutable rootKey        = int sampleHeader.OriginalPitch
 
         for gen in generators do
+            let offset       index = index + int gen.Int16Amount * 1<sample>
+            let coarseOffset index = index + int gen.Int16Amount * 32768<sample>
+
             match gen.GeneratorType with
             | GeneratorEnum.OverridingRootKey ->
                 if 0s <= gen.Int16Amount && gen.Int16Amount <= 127s then
                     rootKey <- int gen.Int16Amount
-            // TODO: modify startIndex and endIndex
-            | GeneratorEnum.StartAddressCoarseOffset -> ()
-            | GeneratorEnum.StartAddressOffset -> ()
-            | GeneratorEnum.StartLoopAddressCoarseOffset -> ()
-            | GeneratorEnum.StartLoopAddressOffset -> ()
-            | GeneratorEnum.EndAddressCoarseOffset -> ()
-            | GeneratorEnum.EndAddressOffset -> ()
-            | GeneratorEnum.EndLoopAddressCoarseOffset -> ()
-            | GeneratorEnum.EndLoopAddressOffset -> ()
+            | GeneratorEnum.StartAddressOffset ->
+                startIndex     <- offset startIndex
+            | GeneratorEnum.EndAddressOffset ->
+                endIndex       <- offset endIndex
+            | GeneratorEnum.StartLoopAddressOffset ->
+                startLoopIndex <- offset startLoopIndex
+            | GeneratorEnum.EndLoopAddressOffset ->
+                endLoopIndex   <- offset endLoopIndex
+            | GeneratorEnum.StartAddressCoarseOffset ->
+                startIndex     <- coarseOffset startIndex
+            | GeneratorEnum.EndAddressCoarseOffset ->
+                endIndex       <- coarseOffset endIndex
+            | GeneratorEnum.StartLoopAddressCoarseOffset ->
+                startLoopIndex <- coarseOffset startLoopIndex
+            | GeneratorEnum.EndLoopAddressCoarseOffset ->
+                endLoopIndex   <- coarseOffset endLoopIndex
             | _ -> ()
         
         let frequency = keyToFrequency key
@@ -110,10 +120,12 @@ let convertMidiToWave (soundFontPath : string) (instrumentName : string) (midiFi
                 dst.[dstIndex] <- int16 src)
             dst
             
+        let toAddress (index : int<sample>) = int index * 2
+
         let sample = {
-            PreLoop  = interpolate (toInt16s soundFont.SampleData.[startIndex*2 .. (startLoopIndex*2)-1]) delta
-            Loop     = interpolate (toInt16s soundFont.SampleData.[startLoopIndex*2 .. (endLoopIndex*2)+1]) delta
-            PostLoop = interpolate (toInt16s soundFont.SampleData.[(endLoopIndex+1)*2 .. (endIndex*2)+1]) delta }
+            PreLoop  = interpolate (toInt16s soundFont.SampleData.[toAddress startIndex .. (toAddress startLoopIndex)-1]) delta
+            Loop     = interpolate (toInt16s soundFont.SampleData.[toAddress startLoopIndex .. (toAddress endLoopIndex)+1]) delta
+            PostLoop = interpolate (toInt16s soundFont.SampleData.[toAddress (endLoopIndex+1<sample>) .. (toAddress endIndex)+1]) delta }
         
         let preLoopLength  = min sampleCount (sample.PreLoop.Length * 1<sample>)
         let postLoopLength = max 0<sample> (min (sampleCount - preLoopLength) (sample.PostLoop.Length * 1<sample>))
