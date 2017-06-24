@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.4
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{0433BE81-E46F-4F5C-B942-4C4D28DA9012}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "midi2wav.tests", "tests\midi2wav.tests\midi2wav.tests.fsproj", "{D7C13BB5-1268-4676-B581-E3CA824B8CFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{B4B2D05C-643C-4BA5-B287-18758F9B854F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4B2D05C-643C-4BA5-B287-18758F9B854F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4B2D05C-643C-4BA5-B287-18758F9B854F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7C13BB5-1268-4676-B581-E3CA824B8CFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7C13BB5-1268-4676-B581-E3CA824B8CFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7C13BB5-1268-4676-B581-E3CA824B8CFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7C13BB5-1268-4676-B581-E3CA824B8CFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
