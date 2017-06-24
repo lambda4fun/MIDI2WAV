@@ -98,7 +98,17 @@ let convertMidiToWave (soundFontPath : string) (instrumentName : string) (midiFi
                 startLoopIndex <- coarseOffset startLoopIndex
             | GeneratorEnum.EndLoopAddressCoarseOffset ->
                 endLoopIndex   <- coarseOffset endLoopIndex
-            | _ -> ()
+            // TODO: Implement volume envelope
+            | GeneratorEnum.DelayVolumeEnvelope -> ()
+            | GeneratorEnum.AttackVolumeEnvelope -> ()
+            | GeneratorEnum.HoldVolumeEnvelope -> ()
+            | GeneratorEnum.DecayVolumeEnvelope -> ()
+            | GeneratorEnum.SustainVolumeEnvelope -> ()
+            | GeneratorEnum.ReleaseVolumeEnvelope -> ()
+            | GeneratorEnum.KeyNumberToVolumeEnvelopeHold -> ()
+            | GeneratorEnum.KeyNumberToVolumeEnvelopeDecay -> ()
+            | _ ->
+                printfn "skip generator: %A" gen
         
         let frequency = keyToFrequency key
         let rootFrequency = keyToFrequency rootKey
