@@ -4,4 +4,3 @@ NUGET
     FSharp.Core (4.2.1)
     FsXaml.Wpf (3.1.6)
     NAudio (1.8)
-    System.ValueTuple (4.3)
