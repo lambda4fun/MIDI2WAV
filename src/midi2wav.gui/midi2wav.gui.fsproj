@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>e8ee4665-5709-4ace-a8ba-7d0c86dd609a</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>midi2wav.gui</RootNamespace>
     <AssemblyName>midi2wav.gui</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -54,24 +54,54 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Content Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="CommandUtils.fs" />
+    <Compile Include="ViewModelBase.fs" />
+    <Resource Include="OptionsDialog.xaml" />
+    <Compile Include="OptionsDialog.xaml.fs" />
+    <Compile Include="OptionsViewModel.fs" />
+    <Resource Include="MainWindow.xaml" />
+    <Compile Include="MainWindow.xaml.fs" />
+    <Compile Include="MainViewModel.fs" />
     <None Include="App.config" />
-    <Content Include="packages.config" />
+    <Resource Include="App.xaml" />
+    <Compile Include="App.fs" />
+    <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FsXaml.Wpf">
+      <HintPath>..\..\packages\FsXaml.Wpf\lib\net45\FsXaml.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="FsXaml.Wpf.TypeProvider">
+      <HintPath>..\..\packages\FsXaml.Wpf\lib\net45\FsXaml.Wpf.TypeProvider.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core">
       <Name>FSharp.Core</Name>
       <AssemblyName>FSharp.Core.dll</AssemblyName>
       <HintPath>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\$(TargetFSharpCoreVersion)\FSharp.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NAudio">
+      <HintPath>..\..\packages\NAudio\lib\net35\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.ValueTuple">
-      <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\midi2wav\midi2wav.fsproj">
+      <Name>midi2wav</Name>
+      <Project>{b4b2d05c-643c-4ba5-b287-18758f9b854f}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -80,4 +110,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\.paket\paket.targets" />
 </Project>
