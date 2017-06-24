@@ -56,7 +56,7 @@
   <ItemGroup>
     <Content Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="IntegrationTests.fs" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +69,13 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\midi2wav\midi2wav.fsproj">
+      <Name>midi2wav</Name>
+      <Project>{b4b2d05c-643c-4ba5-b287-18758f9b854f}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
