@@ -85,6 +85,6 @@ type MainViewModel(window : MainWindow) as self =
 
             let outputFileName = Path.ChangeExtension(Path.GetFileName(inputFilePath), "wav")
             let outputFilePath = Path.Combine(outputDirectory, outputFileName)
-            convertMidiToWave soundFontPath "Yamaha Grand Piano" inputFilePath outputFilePath
+            convertMidiToWave soundFontPath inputFilePath outputFilePath
         with err ->
             MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore)
