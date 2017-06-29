@@ -30,6 +30,8 @@ type MainViewModel(window : MainWindow) as self =
         if Directory.Exists(path)
         then Some DirectoryExists
         else None
+    
+    let isSpacesOrEmpty (s : string) = s.Trim().Length = 0
 
     do
         window.DragEnter.AddHandler(fun _ e ->
@@ -73,19 +75,27 @@ type MainViewModel(window : MainWindow) as self =
         dialog.DataContext <- OptionsViewModel(dialog)
         dialog.Owner <- window
         dialog.ShowDialog())
-
+    
     member __.ConvertCommand = functionCommand(fun () ->
         try
-            if not (File.Exists(inputFilePath))
-            then failwith "Input file is not found."
-            if not (Directory.Exists(outputDirectory))
-            then failwith "Output directory is not found."
-            
             let config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None)
             let soundFontPath = config.AppSettings.Settings.["SoundFontPath"].Value
 
             let outputFileName = Path.ChangeExtension(Path.GetFileName(inputFilePath), "wav")
             let outputFilePath = Path.Combine(outputDirectory, outputFileName)
+
+            if isSpacesOrEmpty inputFilePath then
+                failwith "Please enter input file."
+            if isSpacesOrEmpty outputDirectory then
+                failwith "Please enter output directory."
+            if isSpacesOrEmpty soundFontPath then
+                failwith "Please enter SoundFont path in Options dialog."
+            if not <| File.Exists(inputFilePath) then
+                failwith "Input file is not found."
+            if not <| Directory.Exists(outputDirectory) then
+                failwith "Output directory is not found."
+            if not <| File.Exists(soundFontPath) then
+                failwith "SoundFont file is not found."
             
             let progressDialog = ProgressDialog()
             let progressViewModel = ProgressViewModel(progressDialog)
