@@ -21,11 +21,12 @@ let toSeconds (t : float<timecent>) = (2.0 ** -1200.0) ** float t * 1.0<s>
 
 let toAddress (index : int<sample>) = int index * 2
     
-let toInt16s (bytes : byte[]) =
-    bytes
-    |> Seq.chunkBySize 2
-    |> Seq.map (fun pair -> BitConverter.ToInt16(pair, 0))
-    |> Seq.toArray            
+let toInt16Array (bytes : byte[]) =
+    // Ignores last element if bytes.Length is odd.
+    let shorts = Array.zeroCreate<int16> (bytes.Length / 2)
+    for i in 0 .. shorts.Length-1 do
+        shorts.[i] <- (int16 bytes.[i*2 + 1] <<< 8) ||| int16 bytes.[i*2]
+    shorts
 
 // TODO: Implement an equoation which is more consist with other synthesizers.
 // Reference: The Interpretation of MIDI Velocity by Roger B. Dannenberg
@@ -181,7 +182,7 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
 
         let mapSampleData sampleData =
             sampleData
-            |> toInt16s
+            |> toInt16Array
             |> interpolate delta
             |> Array.map (float >> ((*) amplitude) >> int16)
 
