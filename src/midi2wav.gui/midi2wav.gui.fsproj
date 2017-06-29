@@ -56,11 +56,15 @@
   <ItemGroup>
     <Content Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Units.fs" />
     <Compile Include="CommandUtils.fs" />
     <Compile Include="ViewModelBase.fs" />
     <Resource Include="OptionsDialog.xaml" />
     <Compile Include="OptionsDialog.xaml.fs" />
     <Compile Include="OptionsViewModel.fs" />
+    <Resource Include="ProgressDialog.xaml" />
+    <Compile Include="ProgressDialog.xaml.fs" />
+    <Compile Include="ProgressViewModel.fs" />
     <Resource Include="MainWindow.xaml" />
     <Compile Include="MainWindow.xaml.fs" />
     <Compile Include="MainViewModel.fs" />

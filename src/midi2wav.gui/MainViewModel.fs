@@ -5,6 +5,7 @@ open System.IO
 open System.Windows.Forms
 open Microsoft.Win32
 open Microsoft.FSharp.Linq.NullableOperators
+open Units
 open CommandUtils
 open Convert
 open Views
@@ -85,10 +86,31 @@ type MainViewModel(window : MainWindow) as self =
 
             let outputFileName = Path.ChangeExtension(Path.GetFileName(inputFilePath), "wav")
             let outputFilePath = Path.Combine(outputDirectory, outputFileName)
+            
+            let progressDialog = ProgressDialog()
+            let progressViewModel = ProgressViewModel(progressDialog)
+            progressDialog.DataContext <- progressViewModel
+            
+            let guiContext = System.Threading.SynchronizationContext.Current
+            let callback (progress : Progress) = async {
+                do! Async.SwitchToContext guiContext
 
-            Async.StartImmediate <| async {
-                let! token = Async.StartChild <| async {
-                    convertMidiToWave soundFontPath inputFilePath outputFilePath }
-                do! token }
+                let percentage =
+                    match progress with
+                    | Start    -> 0.0<percent>
+                    | Change x -> unbox<float<percent>> x
+                    | Finish   -> 100.0<percent>
+                progressViewModel.Progress <- percentage
+                progressViewModel.Message <-
+                    if percentage = 100.0<percent>
+                    then "Completed"
+                    else sprintf "%d%%" <| int percentage
+
+                do! Async.SwitchToThreadPool () }
+                
+            progressViewModel.StartTask(convertMidiToWave soundFontPath inputFilePath outputFilePath callback)
+            
+            progressDialog.Owner <- window
+            progressDialog.ShowDialog() |> ignore
         with err ->
             MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore)

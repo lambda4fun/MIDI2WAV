@@ -5,6 +5,7 @@ open System.IO
 open NAudio.Wave
 open NAudio.Midi
 open NAudio.SoundFont
+open Units
 
 [<Measure>] type s
 [<Measure>] type Hz = /s
@@ -24,6 +25,13 @@ let toInt16s (bytes : byte[]) =
     |> Seq.chunkBySize 2
     |> Seq.map (fun pair -> BitConverter.ToInt16(pair, 0))
     |> Seq.toArray            
+
+type Progress =
+    | Start
+    | Change of float<percent>
+    | Finish
+
+type ProgressCallback = Progress -> Async<unit>
 
 type Sample =
     { PreLoop  : int16[]
@@ -188,28 +196,35 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
         let noteOnLength = event.NoteLength * 1<tick>
         writer |> recode event noteOnLength
         writer |> skip (ticksToSamples (length - noteOnLength))
+    
+    member __.Convert(callback : ProgressCallback) = async {
+        let! token = Async.StartChild <| callback Start
+        do! token
 
-    member __.Convert() =
         use writer = new WaveFileWriter(outStream, WaveFormat(int sampleRate, numChannels))
         
         let noteOnEvents =
             events
             |> Seq.filter (fun event -> event.CommandCode = MidiCommandCode.NoteOn)
             |> Seq.map (fun event -> event :?> NoteOnEvent)
+            |> Seq.toArray
 
-        noteOnEvents
-        |> Seq.pairwise
-        |> Seq.iter (fun (event1, event2) ->
+        for (i, (event1, event2)) in noteOnEvents |> Seq.pairwise |> Seq.indexed do
             let noteLength = int (event2.AbsoluteTime - event1.AbsoluteTime) * 1<tick>
-            writer |> recodeNoteOn event1 noteLength)
+            writer |> recodeNoteOn event1 noteLength
+            let! token = Async.StartChild <| callback (Change (float i / float noteOnEvents.Length * 100.0<percent>))
+            do! token
 
         let lastMidiEvent = Seq.last events
         let lastNoteOnEvent = Seq.last noteOnEvents
         let ticks = int (lastMidiEvent.AbsoluteTime - lastNoteOnEvent.AbsoluteTime) * 1<tick>
         writer |> recodeNoteOn lastNoteOnEvent ticks
+        
+        let! token = Async.StartChild <| callback Finish
+        do! token }
     
-let convertMidiToWave (soundFontPath : string) (midiFilePath : string) (waveFilePath : string) =
+let convertMidiToWave (soundFontPath : string) (midiFilePath : string) (waveFilePath : string) (callback : ProgressCallback) =
     let soundFont = SoundFont(soundFontPath)
     let midiFile = MidiFile(midiFilePath)
     let outStream = new FileStream(waveFilePath, FileMode.Create, FileAccess.Write, FileShare.Read)
-    MidiToWaveConverter(soundFont, midiFile, outStream).Convert()
+    MidiToWaveConverter(soundFont, midiFile, outStream).Convert(callback)

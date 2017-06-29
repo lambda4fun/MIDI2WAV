@@ -3,8 +3,8 @@ open Convert
 
 let convertTest() =
     let convert = convertMidiToWave "FluidR3_GM.sf2"
-    do convert "../../../../resources/3midi.mid" "3midi-new.wav"
-    do convert "../../../../resources/12midi.mid" "12midi-new.wav"
+    do convert "../../../../resources/3midi.mid" "3midi-new.wav" (fun _ -> async {()}) |> ignore
+    do convert "../../../../resources/12midi.mid" "12midi-new.wav" (fun _ -> async {()}) |> ignore
 
 [<EntryPoint>]
 let main argv =
