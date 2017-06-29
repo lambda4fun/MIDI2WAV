@@ -7,6 +7,8 @@ type App = XAML<"App.xaml">
 
 [<STAThread; EntryPoint>]
 let main _ =
+    Windows.Forms.Application.EnableVisualStyles()
+
     let window = MainWindow()
     window.DataContext <- MainViewModel(window)
 
