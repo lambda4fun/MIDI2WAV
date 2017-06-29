@@ -123,4 +123,4 @@ type MainViewModel(window : MainWindow) as self =
             progressDialog.Owner <- window
             progressDialog.ShowDialog() |> ignore
         with err ->
-            MessageBox.Show(err.Message, "Conversion failed", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore)
+            MessageBox.Show(err.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error) |> ignore)
