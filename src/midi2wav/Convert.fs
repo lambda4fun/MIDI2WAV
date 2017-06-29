@@ -15,6 +15,7 @@ open Units
 [<Measure>] type timecent
 [<Measure>] type cB
 [<Measure>] type midikey
+[<Measure>] type midivel
 
 let toSeconds (t : float<timecent>) = (2.0 ** -1200.0) ** float t * 1.0<s>
 
@@ -25,6 +26,11 @@ let toInt16s (bytes : byte[]) =
     |> Seq.chunkBySize 2
     |> Seq.map (fun pair -> BitConverter.ToInt16(pair, 0))
     |> Seq.toArray            
+
+// TODO: Implement an equoation which is more consist with other synthesizers.
+// Reference: The Interpretation of MIDI Velocity by Roger B. Dannenberg
+let toAmplitude (v : int<midivel>) =
+    (float v / 127.0) ** 2.0
 
 type Progress =
     | Start
@@ -85,7 +91,7 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
                 gen.GeneratorType = GeneratorEnum.KeyRange &&
                 int gen.LowByteAmount <= key && key <= int gen.HighByteAmount))
         
-    let interpolate (src : int16[]) delta =
+    let interpolate delta (src : int16[]) =
         let dst = Array.zeroCreate (int (float src.Length / delta))
         ({ 0 .. dst.Length-1 }, { 0.0 .. delta .. float (src.Length-1) })
         ||> Seq.iter2 (fun dstIndex srcIndex ->
@@ -171,11 +177,18 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
         let frequency = keyToFrequency key
         let rootFrequency = keyToFrequency rootKey
         let delta = frequency / rootFrequency
+        let amplitude = event.Velocity * 1<midivel> |> toAmplitude
+
+        let mapSampleData sampleData =
+            sampleData
+            |> toInt16s
+            |> interpolate delta
+            |> Array.map (float >> ((*) amplitude) >> int16)
 
         let sample = {
-            PreLoop  = interpolate (toInt16s soundFont.SampleData.[toAddress sampleIndices.StartIndex .. (toAddress sampleIndices.StartLoopIndex)-1]) delta
-            Loop     = interpolate (toInt16s soundFont.SampleData.[toAddress sampleIndices.StartLoopIndex .. (toAddress sampleIndices.EndLoopIndex)+1]) delta
-            PostLoop = interpolate (toInt16s soundFont.SampleData.[toAddress (sampleIndices.EndLoopIndex+1<sample>) .. (toAddress sampleIndices.EndIndex)+1]) delta }
+            PreLoop  = mapSampleData soundFont.SampleData.[toAddress sampleIndices.StartIndex .. (toAddress sampleIndices.StartLoopIndex)-1]
+            Loop     = mapSampleData soundFont.SampleData.[toAddress sampleIndices.StartLoopIndex .. (toAddress sampleIndices.EndLoopIndex)+1]
+            PostLoop = mapSampleData soundFont.SampleData.[toAddress (sampleIndices.EndLoopIndex+1<sample>) .. (toAddress sampleIndices.EndIndex)+1] }
         
         let preLoopLength  = min sampleCount (sample.PreLoop.Length * 1<sample>)
         let postLoopLength = max 0<sample> (min (sampleCount - preLoopLength) (sample.PostLoop.Length * 1<sample>))
