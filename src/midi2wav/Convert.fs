@@ -64,36 +64,24 @@ type VolumeEnvelopeInfo =
       KeyNumberToDecayLength : int<midikey> }
 
 let keyToFrequency key =
-    let n = float (key - 69)
+    let n = float (key - 69<midikey>)
     440.0<Hz> * (2.0 ** (n / 12.0))
-        
-type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream : Stream) =
-    let track = 0
-    let events = midiFile.Events.[track]
-    let tempo = 0.5<s/beat> // 500,000 microseconds
-    let ticksPerBeat = float midiFile.DeltaTicksPerQuarterNote * 1.0<tick/beat>
-    let instrumentName = "Yamaha Grand Piano"
-    let instrument = soundFont.Instruments |> Seq.find (fun i -> i.Name = instrumentName)
-    let sampleRate = 32000<Hz>
-    let numChannels = 1
 
-    let writeSamples (samples : int16[]) (count : int<sample>) (writer : WaveFileWriter) =
-        writer.WriteSamples(samples, 0, int count)
+type SampleGenerator(soundFont : SoundFont, patchNumber : int, bankNumber : int) =
+    // 8.5 Precedence and Absolute and Relative values
+    //   Most SoundFont generators are available at both the Instrument and Preset Levels,
+    //   as well as having a default value.
+    //   Generators at the Preset Level are instead considered “relative” and additive
+    //   to all the default or instrument level generators within the Preset Zone.
+    // 9.4 The SoundFont Generator Model describes the generator precedence.
+    let patchNumber = 0
+    let bankNumber = 0
+    let preset = soundFont.Presets |> Seq.find (fun p ->
+        int p.PatchNumber = patchNumber && int p.Bank = bankNumber)
+    let key = 60<midikey> // TODO: Change this.
+    let velocity = 60<midivel> // TODO: Change this.
 
-    let skip (n : int<sample>) =
-        writeSamples (Array.zeroCreate<int16> (int n)) n
-
-    let findZoneByKey key =
-        instrument.Zones
-        |> Array.filter (fun zone ->
-            zone.Generators
-            |> Array.exists (fun gen -> gen.GeneratorType = GeneratorEnum.SampleID))
-        |> Array.find (fun zone ->
-            zone.Generators
-            |> Array.exists (fun gen ->
-                gen.GeneratorType = GeneratorEnum.KeyRange &&
-                int gen.LowByteAmount <= key && key <= int gen.HighByteAmount))
-        
+    // TODO: Make this generic and move it out of this class.
     let interpolate delta (src : int16[]) =
         let dst = Array.zeroCreate (int (float src.Length / delta))
         ({ 0 .. dst.Length-1 }, { 0.0 .. delta .. float (src.Length-1) })
@@ -104,10 +92,6 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
             dst.[dstIndex] <- int16 src)
         dst
 
-    let ticksToSamples (ticks : int<tick>) =
-        let noteLength = float ticks * tempo / ticksPerBeat
-        int (noteLength * float sampleRate) * 1<sample>
-    
     let computeSampleIndices (sampleHeader : SampleHeader) (generators : Generator seq) =
         let mutable startIndex     = int sampleHeader.Start     * 1<sample>
         let mutable startLoopIndex = int sampleHeader.StartLoop * 1<sample>
@@ -160,29 +144,72 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
             | _ -> ()
     
     let computeRootKey (sampleHeader : SampleHeader) (generators : Generator seq) =
-        let mutable rootKey = int sampleHeader.OriginalPitch
+        let mutable rootKey = int sampleHeader.OriginalPitch * 1<midikey>
         for gen in generators do
             match gen.GeneratorType with
             | GeneratorEnum.OverridingRootKey ->
                 if 0s <= gen.Int16Amount && gen.Int16Amount <= 127s then
-                    rootKey <- int gen.Int16Amount
+                    rootKey <- int gen.Int16Amount * 1<midikey>
             | _ -> ()
         rootKey
+    
+    let getPresetGenerators key velocity =
+        let presetZones =
+            preset.Zones
+            |> Seq.filter (fun zone ->
+                zone.Generators
+                |> Seq.forall (fun gen ->
+                    match gen.GeneratorType with
+                    | GeneratorEnum.KeyRange ->
+                        int gen.LowByteAmount <= int key && int key <= int gen.HighByteAmount
+                    | GeneratorEnum.VelocityRange ->
+                        int gen.LowByteAmount <= int velocity && int velocity <= int gen.HighByteAmount
+                    | _ -> true))
+        presetZones |> Seq.collect (fun zone -> zone.Generators)
+        
+    let getInstrumentGenerators key velocity (presetGenerators : Generator seq) =
+        let instrument =
+            presetGenerators
+            |> Seq.pick (fun gen ->
+                if gen.GeneratorType = GeneratorEnum.Instrument && gen.Instrument <> null then
+                    Some gen.Instrument
+                else
+                    None)
+        let instrumentZones =
+            instrument.Zones
+            |> Seq.filter (fun zone ->
+                zone.Generators
+                |> Seq.forall (fun gen ->
+                    match gen.GeneratorType with
+                    | GeneratorEnum.KeyNumber ->
+                        int gen.Int16Amount = int key
+                    | GeneratorEnum.Velocity ->
+                        int gen.Int16Amount = int velocity
+                    | GeneratorEnum.KeyRange ->
+                        int gen.LowByteAmount <= int key && int key <= int gen.HighByteAmount
+                    | GeneratorEnum.VelocityRange ->
+                        int gen.LowByteAmount <= int velocity && int velocity <= int gen.HighByteAmount
+                    | _ -> true))
+        instrumentZones |> Seq.collect (fun zone -> zone.Generators)
+        
+    // TODO: Implement between function
+    // TODO: Distinct preset generators and instrument generators
+    // type PresetGenerators = PresetGenerators of (Generator seq)
 
-    let recode (event : NoteOnEvent) ticks writer =
-        let sampleCount = ticksToSamples ticks
-        let key = event.NoteNumber
-        let zone = findZoneByKey key
-        let generators = zone.Generators
-        let sampleId = generators |> Array.find (fun gen -> gen.GeneratorType = GeneratorEnum.SampleID)
+    member __.GenerateSample(key, velocity) =
+        let presetGenerators = getPresetGenerators key velocity
+        let instrumentGenerators = presetGenerators |> getInstrumentGenerators key velocity
+        
+        let sampleId = instrumentGenerators |> Seq.find (fun gen -> gen.GeneratorType = GeneratorEnum.SampleID)
         let sampleHeader = sampleId.SampleHeader
-        let sampleIndices = computeSampleIndices sampleHeader generators
-        let rootKey = computeRootKey sampleHeader generators
+        let sampleIndices = computeSampleIndices sampleHeader instrumentGenerators
+        
+        let rootKey = computeRootKey sampleHeader instrumentGenerators
         let frequency = keyToFrequency key
         let rootFrequency = keyToFrequency rootKey
         let delta = frequency / rootFrequency
-        let amplitude = event.Velocity * 1<midivel> |> toAmplitude
-        let volumeEnvelopes = computeVolumeEnvelopes generators
+        let amplitude = velocity |> toAmplitude
+        let volumeEnvelopes = computeVolumeEnvelopes <| Seq.concat [presetGenerators; instrumentGenerators]
 
         let mapSampleData sampleData =
             sampleData
@@ -190,10 +217,39 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
             |> interpolate delta
             |> Array.map (float >> ((*) amplitude) >> int16)
 
-        let sample = {
-            PreLoop  = mapSampleData soundFont.SampleData.[toAddress sampleIndices.StartIndex .. (toAddress sampleIndices.StartLoopIndex)-1]
-            Loop     = mapSampleData soundFont.SampleData.[toAddress sampleIndices.StartLoopIndex .. (toAddress sampleIndices.EndLoopIndex)+1]
-            PostLoop = mapSampleData soundFont.SampleData.[toAddress (sampleIndices.EndLoopIndex+1<sample>) .. (toAddress sampleIndices.EndIndex)+1] }
+        { PreLoop  = mapSampleData soundFont.SampleData.[toAddress sampleIndices.StartIndex .. (toAddress sampleIndices.StartLoopIndex)-1]
+          Loop     = mapSampleData soundFont.SampleData.[toAddress sampleIndices.StartLoopIndex .. (toAddress sampleIndices.EndLoopIndex)+1]
+          PostLoop = mapSampleData soundFont.SampleData.[toAddress (sampleIndices.EndLoopIndex+1<sample>) .. (toAddress sampleIndices.EndIndex)+1] }
+
+type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream : Stream) =
+    let track = 0
+    let events = midiFile.Events.[track]
+    let tempo = 0.5<s/beat> // 500,000 microseconds
+    let ticksPerBeat = float midiFile.DeltaTicksPerQuarterNote * 1.0<tick/beat>
+    let sampleRate = 32000<Hz>
+    let numChannels = 1
+
+    let writeSamples (samples : int16[]) (count : int<sample>) (writer : WaveFileWriter) =
+        writer.WriteSamples(samples, 0, int count)
+
+    let skip (n : int<sample>) =
+        writeSamples (Array.zeroCreate<int16> (int n)) n
+        
+    let ticksToSamples (ticks : int<tick>) =
+        let noteLength = float ticks * tempo / ticksPerBeat
+        int (noteLength * float sampleRate) * 1<sample>    
+
+    let recode (event : NoteOnEvent) ticks writer =
+        // TODO: Implement program change and bank change.
+        // TODO: Add units of measure.
+        let patchNumber = 0
+        let bankNumber = 0
+        let sampleGenerator = SampleGenerator(soundFont, patchNumber=patchNumber, bankNumber=bankNumber)
+
+        let sampleCount = ticksToSamples ticks
+        let key = int event.NoteNumber * 1<midikey>
+        let velocity = int event.Velocity * 1<midivel>
+        let sample = sampleGenerator.GenerateSample(key, velocity)
         
         let preLoopLength  = min sampleCount (sample.PreLoop.Length * 1<sample>)
         let postLoopLength = max 0<sample> (min (sampleCount - preLoopLength) (sample.PostLoop.Length * 1<sample>))
