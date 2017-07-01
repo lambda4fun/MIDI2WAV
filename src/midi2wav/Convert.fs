@@ -17,9 +17,11 @@ open Units
 [<Measure>] type midikey
 [<Measure>] type midivel
 
-let toSeconds (t : float<timecent>) = (2.0 ** -1200.0) ** float t * 1.0<s>
+let toSeconds (t : int<timecent>) =
+    2.0 ** (float -t / 1200.0) * 1.0<s>
 
-let toAddress (index : int<sample>) = int index * 2
+let toAddress (index : int<sample>) =
+    int index * 2
     
 let toInt16Array (bytes : byte[]) =
     // Ignores last element if bytes.Length is odd.
@@ -142,18 +144,19 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
 
     // TODO: Implement volume envelope.
     let computeVolumeEnvelopes (generators : Generator seq) =
+        printfn "computeVolumeEnvelopes"
         for gen in generators do
             match gen.GeneratorType with
-            | GeneratorEnum.DelayVolumeEnvelope ->
-                let t = float gen.Int16Amount * 1.0<timecent>
-                printfn "%.20f" <| toSeconds t
-            | GeneratorEnum.AttackVolumeEnvelope -> ()
-            | GeneratorEnum.HoldVolumeEnvelope -> ()
-            | GeneratorEnum.DecayVolumeEnvelope -> ()
-            | GeneratorEnum.SustainVolumeEnvelope -> ()
-            | GeneratorEnum.ReleaseVolumeEnvelope -> ()
-            | GeneratorEnum.KeyNumberToVolumeEnvelopeHold -> ()
-            | GeneratorEnum.KeyNumberToVolumeEnvelopeDecay -> ()
+            | GeneratorEnum.DelayVolumeEnvelope
+            | GeneratorEnum.AttackVolumeEnvelope
+            | GeneratorEnum.HoldVolumeEnvelope
+            | GeneratorEnum.DecayVolumeEnvelope
+            | GeneratorEnum.SustainVolumeEnvelope
+            | GeneratorEnum.ReleaseVolumeEnvelope
+            | GeneratorEnum.KeyNumberToVolumeEnvelopeHold
+            | GeneratorEnum.KeyNumberToVolumeEnvelopeDecay ->
+                let t = int gen.Int16Amount * 1<timecent>
+                printfn "%A %dtimecent = %.20f" gen.GeneratorType t (toSeconds t)
             | _ -> ()
     
     let computeRootKey (sampleHeader : SampleHeader) (generators : Generator seq) =
@@ -179,6 +182,7 @@ type MidiToWaveConverter(soundFont : SoundFont, midiFile : MidiFile, outStream :
         let rootFrequency = keyToFrequency rootKey
         let delta = frequency / rootFrequency
         let amplitude = event.Velocity * 1<midivel> |> toAmplitude
+        let volumeEnvelopes = computeVolumeEnvelopes generators
 
         let mapSampleData sampleData =
             sampleData
